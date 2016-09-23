@@ -1,0 +1,129 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Welcome to AppTree Documentation\n\n\nTODO\n\n\nmkdocs\n\n\nFor full documentation visit \nmkdocs.org\n.", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#welcome-to-apptree-documentation", 
+            "text": "TODO", 
+            "title": "Welcome to AppTree Documentation"
+        }, 
+        {
+            "location": "/#mkdocs", 
+            "text": "For full documentation visit  mkdocs.org .", 
+            "title": "mkdocs"
+        }, 
+        {
+            "location": "/about/", 
+            "text": "About\n\n\nTODO", 
+            "title": "About"
+        }, 
+        {
+            "location": "/about/#about", 
+            "text": "TODO", 
+            "title": "About"
+        }, 
+        {
+            "location": "/build_server/", 
+            "text": "AppTree Build Server Documentation\n\n\nRuby\n\n\nFastlane depends on Ruby.  The build server is configured to use a specific version of \nruby 2.2.4p230\n instead of the system Ruby that came preinstalled with Mac OS X.  \n\n\nThere is no guarantee that Fastlane will work with a newer version of Ruby.\n\n\nThe version of Ruby that the build server is running is configured by rbenv.  The version is set by the \nRBENV_VERSION\n environment variable.  \n\n\nSince we are not using the system Ruby, there is no need to use \nsudo\n when you are installing, updating, or uninstalling gems.\n\n\nFor more information please consult the \nrbenv documentation\n.\n\n\nUpdating Cocoapods\n\n\n\n\nUpdate the \nGemfile\n so that it reflect the latest version of Cocoapods.\n\n\nRun \nbundle update\n.\n\n\nTest to see that Cocoapods is working correctly by checking the version by running  \npod --version\n.\n\n\nIf the version is not as expected, you may have multiple versions of Cocoapods installed.  To remedy, run \ngem uninstall cocoapods\n and choose to uninstall the older version.\n\n\nGemfile.lock\n and \nGemfile\n will have changed.  Commit the changes to the repository.\n\n\n\n\nUpdating Cocoapods Repository\n\n\nbundle exec pod repo update\n\n\nUpdating Fastlane\n\n\nThe build server will probably not require Fastlane to be updated very often in order for the builds to work.  However, if an update is required, please follow these steps:\n\n\n\n\nUpdate the \nGemfile\n so that it reflect the latest version of Fastlane.\n\n\nRun \nbundle update\n.\n\n\nTest to see that Fastlane is working correctly by checking the version by running \nfastlane --version\n.\n\n\nIf the version is not as expected, you may have multiple versions of Fastlane installed.  To remedy, run \ngem uninstall fastlane\n and choose to uninstall the older version.\n\n\nGemfile.lock\n and \nGemfile\n will have changed.  Commit the changes to the repository.\n\n\n\n\nFastlane (iOS Builds)\n\n\nFastlane Documentation\n\n\nCreating a new lane\n\n\n\n\n\n\nXCode 8 gives the option to \"Automatically manage signing.\"  This needs to be turned off.  Fastlane will be managing the signing.\n\n\n\n\n\n\nIn \nfastlane/Appfile\n modify to include a new lane.\n\n\n\n\n\n\n  for_lane :build_apptree do\n    team_id 'U4U2747VWL'\n    app_identifier 'com.apptreesoftware.revolution'\n    apple_id 'builds@apptreesoftware.com'\n  end\n\n\n\n\n\n\nIn \nfastlane/Fastfile\n modify to include a new lane.  Make certain that the scheme, provisioning profile name, team id, info plist matches the values in the XCode project.\n\n\n\n\n  lane :build_apptree do |options|\n        ENV[\nSCHEME\n] = \nAppTreeRevolution\n\n        ENV[\nSIGH_PROVISIONING_PROFILE_NAME\n] = \nAppTree Revolution\n\n        ENV[\nSIGH_TEAM_ID\n] = \nU4U2747VWL\n\n        ENV[\nINFO_PLIST\n] = \n../Skins/AppTreeRevolution/Info.plist\n\n        ENV[\nVERSION_NUMBER\n] = (sh \n./get_version_number.sh #{ENV[\nINFO_PLIST\n]}\n).strip\n        ENV[\nBUILD_NUMBER\n] = (sh \ngit rev-list --count HEAD\n).strip\n        sh \n./set_build_number.sh #{ENV[\nINFO_PLIST\n]}\n\n        ENV[\nBUILD_NUMBER_OUTPUT_STRING\n] = File.read(Dir.pwd + '/current_build')\n        puts \nNow Building #{lane_context[SharedValues::LANE_NAME]}: #{ENV[\nBUILD_NUMBER_OUTPUT_STRING\n]}\n\n        build(\n            configuration: \nRelease\n,\n            scheme: ENV[\nSCHEME\n],\n            adhoc: false,\n            export_method: \nenterprise\n,\n            groups: ['apptree-testers']\n        )\n  end\n\n\n\n\n\n\nCreate a file at \nfastlane/.env\n and populate it with the following contents.  This also needs to be done on the build server as the file is not currently checked into the repository.\n\n\n\n\nCRASHLYTICS_API_TOKEN = \nRedacted\n\nCRASHLYTICS_BUILD_SECRET = \nRedacted\n\n\n\n\n\n\n\nTry a build on your local machine and see if everything is working.\n\n\n\n\nPoints of Failure\n\n\nCocoapods\n\n\nbundle exec pod install\n may fail.  If this happens make sure cocoapods is updated to the latest release version.  Check the Podfile to see if it is properly formatted.\n\n\nSigh\n\n\nAlways look for \nFound 1 matching profiles(s)\n.  If Sigh does not find a profile and is forced to create one, something  is wrong.  Make certain that the provisioning profile name you have specified in the Fastfile matches the one in the developer portal.\n\n\n+-------------------------------------+--------------------------------+\n|                       Summary for sigh 1.11.1                        |\n+-------------------------------------+--------------------------------+\n| adhoc                               | false                          |\n| development                         | false                          |\n| skip_install                        | false                          |\n| force                               | false                          |\n| app_identifier                      | com.apptreesoftware.revolution |\n| username                            | builds@apptreesoftware.com     |\n| team_id                             | U4U2747VWL                     |\n| team_name                           | AppTree Software LLC           |\n| provisioning_name                   | AppTree Revolution             |\n| ignore_profiles_with_different_name | false                          |\n| skip_fetch_profiles                 | false                          |\n| skip_certificate_verification       | false                          |\n+-------------------------------------+--------------------------------+\n\n[07:45:44]: Starting login with user 'builds@apptreesoftware.com'\n[07:45:46]: Successfully logged in\n[07:45:46]: Fetching profiles...\n[07:45:53]: Found 1 matching profile(s)\n[07:45:53]: Downloading provisioning profile...\n[07:45:54]: Successfully downloaded provisioning profile...\n[07:45:54]: Installing provisioning profile...\n/Users/apptree/.jenkins/jobs/iOS_AppTree/workspace/InHouse_com.apptreesoftware.revolution.mobileprovision\n[07:45:54]: Setting Provisioning Profile type to 'enterprise'\n\n\n\n\nGym\n\n\nThere are two phases to the process, the first starts by building all of the 3rd party dependencies.  The second phase builds all of your files.\n\n\nPeriodically, these builds will fail for one reason or another.  Sometimes the build will succeed the second time.  Sometimes the machine requires a reboot.\n\n\nOther times the build will always fail.  The best way to troubleshoot is to try and do an Archive build in XCode on the build machine and see if any errors can be debugged there.\n\n\nPost Build\n\n\nFirst, the build will be uploaded to Crashlytics.  If the build stops and asks for credentials, then it is missing the file in \nfastlane/.env\n.\n\n\nSecond, if it is an App Store build, it will attempt to upload to the iTunes App Store.  This process may fail for a number of reasons but the error messages are usually very descriptive.\n\n\nThird, it will rename the file with the current version and build numbers and send a success message to slack.  If the build fails for any reason it will not rename the file.\n\n\nIf the build was successful Jenkins will take over and perform any post-build activities, such as uploading to Dropbox.\n\n\nJenkins\n\n\nCreating a New job\n\n\nThe easiest way to create a new job is to go to an existing job and select \"Copy Project.\"\n\n\nThe location of the source files of any job is in \n~/.jenkins/jobs/\nJob Name\n/workspace/\n\n\nBuild Server Maintenance\n\n\nAndroid Builds Failing\n\n\nSometimes, Android builds will fail consistently.  This is due to the Java daemon crashing.  To fix this, reboot the machine.  \n\n\nFan Control\n\n\nsmcFanControl is an installed utility that will allow you to control the fan if the build server is getting too hot.\n\n\nGeneral Maintenance\n\n\nOnyx is an installed utility that will help to clear the system caches so that the system will run better.  Once in Onyx, run the default steps in \"Automation.\"\n\n\nDocumentation\n\n\nTODO", 
+            "title": "Build Server"
+        }, 
+        {
+            "location": "/build_server/#apptree-build-server-documentation", 
+            "text": "", 
+            "title": "AppTree Build Server Documentation"
+        }, 
+        {
+            "location": "/build_server/#ruby", 
+            "text": "Fastlane depends on Ruby.  The build server is configured to use a specific version of  ruby 2.2.4p230  instead of the system Ruby that came preinstalled with Mac OS X.    There is no guarantee that Fastlane will work with a newer version of Ruby.  The version of Ruby that the build server is running is configured by rbenv.  The version is set by the  RBENV_VERSION  environment variable.    Since we are not using the system Ruby, there is no need to use  sudo  when you are installing, updating, or uninstalling gems.  For more information please consult the  rbenv documentation .", 
+            "title": "Ruby"
+        }, 
+        {
+            "location": "/build_server/#updating-cocoapods", 
+            "text": "Update the  Gemfile  so that it reflect the latest version of Cocoapods.  Run  bundle update .  Test to see that Cocoapods is working correctly by checking the version by running   pod --version .  If the version is not as expected, you may have multiple versions of Cocoapods installed.  To remedy, run  gem uninstall cocoapods  and choose to uninstall the older version.  Gemfile.lock  and  Gemfile  will have changed.  Commit the changes to the repository.", 
+            "title": "Updating Cocoapods"
+        }, 
+        {
+            "location": "/build_server/#updating-cocoapods-repository", 
+            "text": "bundle exec pod repo update", 
+            "title": "Updating Cocoapods Repository"
+        }, 
+        {
+            "location": "/build_server/#updating-fastlane", 
+            "text": "The build server will probably not require Fastlane to be updated very often in order for the builds to work.  However, if an update is required, please follow these steps:   Update the  Gemfile  so that it reflect the latest version of Fastlane.  Run  bundle update .  Test to see that Fastlane is working correctly by checking the version by running  fastlane --version .  If the version is not as expected, you may have multiple versions of Fastlane installed.  To remedy, run  gem uninstall fastlane  and choose to uninstall the older version.  Gemfile.lock  and  Gemfile  will have changed.  Commit the changes to the repository.", 
+            "title": "Updating Fastlane"
+        }, 
+        {
+            "location": "/build_server/#fastlane-ios-builds", 
+            "text": "Fastlane Documentation", 
+            "title": "Fastlane (iOS Builds)"
+        }, 
+        {
+            "location": "/build_server/#creating-a-new-lane", 
+            "text": "XCode 8 gives the option to \"Automatically manage signing.\"  This needs to be turned off.  Fastlane will be managing the signing.    In  fastlane/Appfile  modify to include a new lane.      for_lane :build_apptree do\n    team_id 'U4U2747VWL'\n    app_identifier 'com.apptreesoftware.revolution'\n    apple_id 'builds@apptreesoftware.com'\n  end   In  fastlane/Fastfile  modify to include a new lane.  Make certain that the scheme, provisioning profile name, team id, info plist matches the values in the XCode project.     lane :build_apptree do |options|\n        ENV[ SCHEME ] =  AppTreeRevolution \n        ENV[ SIGH_PROVISIONING_PROFILE_NAME ] =  AppTree Revolution \n        ENV[ SIGH_TEAM_ID ] =  U4U2747VWL \n        ENV[ INFO_PLIST ] =  ../Skins/AppTreeRevolution/Info.plist \n        ENV[ VERSION_NUMBER ] = (sh  ./get_version_number.sh #{ENV[ INFO_PLIST ]} ).strip\n        ENV[ BUILD_NUMBER ] = (sh  git rev-list --count HEAD ).strip\n        sh  ./set_build_number.sh #{ENV[ INFO_PLIST ]} \n        ENV[ BUILD_NUMBER_OUTPUT_STRING ] = File.read(Dir.pwd + '/current_build')\n        puts  Now Building #{lane_context[SharedValues::LANE_NAME]}: #{ENV[ BUILD_NUMBER_OUTPUT_STRING ]} \n        build(\n            configuration:  Release ,\n            scheme: ENV[ SCHEME ],\n            adhoc: false,\n            export_method:  enterprise ,\n            groups: ['apptree-testers']\n        )\n  end   Create a file at  fastlane/.env  and populate it with the following contents.  This also needs to be done on the build server as the file is not currently checked into the repository.   CRASHLYTICS_API_TOKEN =  Redacted \nCRASHLYTICS_BUILD_SECRET =  Redacted    Try a build on your local machine and see if everything is working.", 
+            "title": "Creating a new lane"
+        }, 
+        {
+            "location": "/build_server/#points-of-failure", 
+            "text": "", 
+            "title": "Points of Failure"
+        }, 
+        {
+            "location": "/build_server/#cocoapods", 
+            "text": "bundle exec pod install  may fail.  If this happens make sure cocoapods is updated to the latest release version.  Check the Podfile to see if it is properly formatted.", 
+            "title": "Cocoapods"
+        }, 
+        {
+            "location": "/build_server/#sigh", 
+            "text": "Always look for  Found 1 matching profiles(s) .  If Sigh does not find a profile and is forced to create one, something  is wrong.  Make certain that the provisioning profile name you have specified in the Fastfile matches the one in the developer portal.  +-------------------------------------+--------------------------------+\n|                       Summary for sigh 1.11.1                        |\n+-------------------------------------+--------------------------------+\n| adhoc                               | false                          |\n| development                         | false                          |\n| skip_install                        | false                          |\n| force                               | false                          |\n| app_identifier                      | com.apptreesoftware.revolution |\n| username                            | builds@apptreesoftware.com     |\n| team_id                             | U4U2747VWL                     |\n| team_name                           | AppTree Software LLC           |\n| provisioning_name                   | AppTree Revolution             |\n| ignore_profiles_with_different_name | false                          |\n| skip_fetch_profiles                 | false                          |\n| skip_certificate_verification       | false                          |\n+-------------------------------------+--------------------------------+\n\n[07:45:44]: Starting login with user 'builds@apptreesoftware.com'\n[07:45:46]: Successfully logged in\n[07:45:46]: Fetching profiles...\n[07:45:53]: Found 1 matching profile(s)\n[07:45:53]: Downloading provisioning profile...\n[07:45:54]: Successfully downloaded provisioning profile...\n[07:45:54]: Installing provisioning profile...\n/Users/apptree/.jenkins/jobs/iOS_AppTree/workspace/InHouse_com.apptreesoftware.revolution.mobileprovision\n[07:45:54]: Setting Provisioning Profile type to 'enterprise'", 
+            "title": "Sigh"
+        }, 
+        {
+            "location": "/build_server/#gym", 
+            "text": "There are two phases to the process, the first starts by building all of the 3rd party dependencies.  The second phase builds all of your files.  Periodically, these builds will fail for one reason or another.  Sometimes the build will succeed the second time.  Sometimes the machine requires a reboot.  Other times the build will always fail.  The best way to troubleshoot is to try and do an Archive build in XCode on the build machine and see if any errors can be debugged there.", 
+            "title": "Gym"
+        }, 
+        {
+            "location": "/build_server/#post-build", 
+            "text": "First, the build will be uploaded to Crashlytics.  If the build stops and asks for credentials, then it is missing the file in  fastlane/.env .  Second, if it is an App Store build, it will attempt to upload to the iTunes App Store.  This process may fail for a number of reasons but the error messages are usually very descriptive.  Third, it will rename the file with the current version and build numbers and send a success message to slack.  If the build fails for any reason it will not rename the file.  If the build was successful Jenkins will take over and perform any post-build activities, such as uploading to Dropbox.", 
+            "title": "Post Build"
+        }, 
+        {
+            "location": "/build_server/#jenkins", 
+            "text": "", 
+            "title": "Jenkins"
+        }, 
+        {
+            "location": "/build_server/#creating-a-new-job", 
+            "text": "The easiest way to create a new job is to go to an existing job and select \"Copy Project.\"  The location of the source files of any job is in  ~/.jenkins/jobs/ Job Name /workspace/", 
+            "title": "Creating a New job"
+        }, 
+        {
+            "location": "/build_server/#build-server-maintenance", 
+            "text": "", 
+            "title": "Build Server Maintenance"
+        }, 
+        {
+            "location": "/build_server/#android-builds-failing", 
+            "text": "Sometimes, Android builds will fail consistently.  This is due to the Java daemon crashing.  To fix this, reboot the machine.", 
+            "title": "Android Builds Failing"
+        }, 
+        {
+            "location": "/build_server/#fan-control", 
+            "text": "smcFanControl is an installed utility that will allow you to control the fan if the build server is getting too hot.", 
+            "title": "Fan Control"
+        }, 
+        {
+            "location": "/build_server/#general-maintenance", 
+            "text": "Onyx is an installed utility that will help to clear the system caches so that the system will run better.  Once in Onyx, run the default steps in \"Automation.\"", 
+            "title": "General Maintenance"
+        }, 
+        {
+            "location": "/build_server/#documentation", 
+            "text": "TODO", 
+            "title": "Documentation"
+        }
+    ]
+}

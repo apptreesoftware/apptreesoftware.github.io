@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <title>Build Server - AppTree Documentation</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Build Server";
+    var mkdocs_page_input_path = "build_server.md";
+    var mkdocs_page_url = "/build_server/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> AppTree Documentation</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../about/">About</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Build Server</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#apptree-build-server-documentation">AppTree Build Server Documentation</a></li>
+                
+                    <li><a class="toctree-l4" href="#ruby">Ruby</a></li>
+                
+                    <li><a class="toctree-l4" href="#fastlane-ios-builds">Fastlane (iOS Builds)</a></li>
+                
+                    <li><a class="toctree-l4" href="#jenkins">Jenkins</a></li>
+                
+                    <li><a class="toctree-l4" href="#build-server-maintenance">Build Server Maintenance</a></li>
+                
+                    <li><a class="toctree-l4" href="#documentation">Documentation</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">AppTree Documentation</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Build Server</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="apptree-build-server-documentation">AppTree Build Server Documentation</h1>
+<h2 id="ruby">Ruby</h2>
+<p>Fastlane depends on Ruby.  The build server is configured to use a specific version of <code>ruby 2.2.4p230</code> instead of the system Ruby that came preinstalled with Mac OS X.  </p>
+<p>There is no guarantee that Fastlane will work with a newer version of Ruby.</p>
+<p>The version of Ruby that the build server is running is configured by rbenv.  The version is set by the <code>RBENV_VERSION</code> environment variable.  </p>
+<p><b>Since we are not using the system Ruby, there is no need to use <code>sudo</code> when you are installing, updating, or uninstalling gems.<b></p>
+<p>For more information please consult the <a href="https://github.com/rbenv/rbenv">rbenv documentation</a>.</p>
+<h3 id="updating-cocoapods">Updating Cocoapods</h3>
+<ol>
+<li>Update the <code>Gemfile</code> so that it reflect the latest version of Cocoapods.</li>
+<li>Run <code>bundle update</code>.</li>
+<li>Test to see that Cocoapods is working correctly by checking the version by running  <code>pod --version</code>.</li>
+<li>If the version is not as expected, you may have multiple versions of Cocoapods installed.  To remedy, run <code>gem uninstall cocoapods</code> and choose to uninstall the older version.</li>
+<li><code>Gemfile.lock</code> and <code>Gemfile</code> will have changed.  Commit the changes to the repository.</li>
+</ol>
+<h3 id="updating-cocoapods-repository">Updating Cocoapods Repository</h3>
+<p><code>bundle exec pod repo update</code></p>
+<h3 id="updating-fastlane">Updating Fastlane</h3>
+<p>The build server will probably not require Fastlane to be updated very often in order for the builds to work.  However, if an update is required, please follow these steps:</p>
+<ol>
+<li>Update the <code>Gemfile</code> so that it reflect the latest version of Fastlane.</li>
+<li>Run <code>bundle update</code>.</li>
+<li>Test to see that Fastlane is working correctly by checking the version by running <code>fastlane --version</code>.</li>
+<li>If the version is not as expected, you may have multiple versions of Fastlane installed.  To remedy, run <code>gem uninstall fastlane</code> and choose to uninstall the older version.</li>
+<li><code>Gemfile.lock</code> and <code>Gemfile</code> will have changed.  Commit the changes to the repository.</li>
+</ol>
+<h2 id="fastlane-ios-builds">Fastlane (iOS Builds)</h2>
+<p><a href="https://docs.fastlane.tools">Fastlane Documentation</a></p>
+<h3 id="creating-a-new-lane">Creating a new lane</h3>
+<ol>
+<li>
+<p>XCode 8 gives the option to "Automatically manage signing."  This needs to be turned off.  Fastlane will be managing the signing.</p>
+</li>
+<li>
+<p>In <code>fastlane/Appfile</code> modify to include a new lane.</p>
+</li>
+</ol>
+<pre><code class="Ruby">  for_lane :build_apptree do
+    team_id 'U4U2747VWL'
+    app_identifier 'com.apptreesoftware.revolution'
+    apple_id 'builds@apptreesoftware.com'
+  end
+</code></pre>
+
+<ol>
+<li>In <code>fastlane/Fastfile</code> modify to include a new lane.  Make certain that the scheme, provisioning profile name, team id, info plist matches the values in the XCode project.</li>
+</ol>
+<pre><code class="Ruby">  lane :build_apptree do |options|
+        ENV[&quot;SCHEME&quot;] = &quot;AppTreeRevolution&quot;
+        ENV[&quot;SIGH_PROVISIONING_PROFILE_NAME&quot;] = &quot;AppTree Revolution&quot;
+        ENV[&quot;SIGH_TEAM_ID&quot;] = &quot;U4U2747VWL&quot;
+        ENV[&quot;INFO_PLIST&quot;] = &quot;../Skins/AppTreeRevolution/Info.plist&quot;
+        ENV[&quot;VERSION_NUMBER&quot;] = (sh &quot;./get_version_number.sh #{ENV[&quot;INFO_PLIST&quot;]}&quot;).strip
+        ENV[&quot;BUILD_NUMBER&quot;] = (sh &quot;git rev-list --count HEAD&quot;).strip
+        sh &quot;./set_build_number.sh #{ENV[&quot;INFO_PLIST&quot;]}&quot;
+        ENV[&quot;BUILD_NUMBER_OUTPUT_STRING&quot;] = File.read(Dir.pwd + '/current_build')
+        puts &quot;Now Building #{lane_context[SharedValues::LANE_NAME]}: #{ENV[&quot;BUILD_NUMBER_OUTPUT_STRING&quot;]}&quot;
+        build(
+            configuration: &quot;Release&quot;,
+            scheme: ENV[&quot;SCHEME&quot;],
+            adhoc: false,
+            export_method: &quot;enterprise&quot;,
+            groups: ['apptree-testers']
+        )
+  end
+</code></pre>
+
+<ol>
+<li>Create a file at <code>fastlane/.env</code> and populate it with the following contents.  This also needs to be done on the build server as the file is not currently checked into the repository.</li>
+</ol>
+<pre><code>CRASHLYTICS_API_TOKEN = &lt;Redacted&gt;
+CRASHLYTICS_BUILD_SECRET = &lt;Redacted&gt;
+</code></pre>
+
+<ol>
+<li>Try a build on your local machine and see if everything is working.</li>
+</ol>
+<h3 id="points-of-failure">Points of Failure</h3>
+<h4 id="cocoapods">Cocoapods</h4>
+<p><code>bundle exec pod install</code> may fail.  If this happens make sure cocoapods is updated to the latest release version.  Check the Podfile to see if it is properly formatted.</p>
+<h4 id="sigh">Sigh</h4>
+<p>Always look for <code>Found 1 matching profiles(s)</code>.  If Sigh does not find a profile and is forced to create one, something  is wrong.  Make certain that the provisioning profile name you have specified in the Fastfile matches the one in the developer portal.</p>
+<pre><code>+-------------------------------------+--------------------------------+
+|                       Summary for sigh 1.11.1                        |
++-------------------------------------+--------------------------------+
+| adhoc                               | false                          |
+| development                         | false                          |
+| skip_install                        | false                          |
+| force                               | false                          |
+| app_identifier                      | com.apptreesoftware.revolution |
+| username                            | builds@apptreesoftware.com     |
+| team_id                             | U4U2747VWL                     |
+| team_name                           | AppTree Software LLC           |
+| provisioning_name                   | AppTree Revolution             |
+| ignore_profiles_with_different_name | false                          |
+| skip_fetch_profiles                 | false                          |
+| skip_certificate_verification       | false                          |
++-------------------------------------+--------------------------------+
+
+[07:45:44]: Starting login with user 'builds@apptreesoftware.com'
+[07:45:46]: Successfully logged in
+[07:45:46]: Fetching profiles...
+[07:45:53]: Found 1 matching profile(s)
+[07:45:53]: Downloading provisioning profile...
+[07:45:54]: Successfully downloaded provisioning profile...
+[07:45:54]: Installing provisioning profile...
+/Users/apptree/.jenkins/jobs/iOS_AppTree/workspace/InHouse_com.apptreesoftware.revolution.mobileprovision
+[07:45:54]: Setting Provisioning Profile type to 'enterprise'
+</code></pre>
+
+<h4 id="gym">Gym</h4>
+<p>There are two phases to the process, the first starts by building all of the 3rd party dependencies.  The second phase builds all of your files.</p>
+<p>Periodically, these builds will fail for one reason or another.  Sometimes the build will succeed the second time.  Sometimes the machine requires a reboot.</p>
+<p>Other times the build will always fail.  The best way to troubleshoot is to try and do an Archive build in XCode on the build machine and see if any errors can be debugged there.</p>
+<h4 id="post-build">Post Build</h4>
+<p>First, the build will be uploaded to Crashlytics.  If the build stops and asks for credentials, then it is missing the file in <code>fastlane/.env</code>.</p>
+<p>Second, if it is an App Store build, it will attempt to upload to the iTunes App Store.  This process may fail for a number of reasons but the error messages are usually very descriptive.</p>
+<p>Third, it will rename the file with the current version and build numbers and send a success message to slack.  If the build fails for any reason it will not rename the file.</p>
+<p>If the build was successful Jenkins will take over and perform any post-build activities, such as uploading to Dropbox.</p>
+<h2 id="jenkins">Jenkins</h2>
+<h3 id="creating-a-new-job">Creating a New job</h3>
+<p>The easiest way to create a new job is to go to an existing job and select "Copy Project."</p>
+<p>The location of the source files of any job is in <code>~/.jenkins/jobs/&lt;Job Name&gt;/workspace/</code></p>
+<h2 id="build-server-maintenance">Build Server Maintenance</h2>
+<h3 id="android-builds-failing">Android Builds Failing</h3>
+<p>Sometimes, Android builds will fail consistently.  This is due to the Java daemon crashing.  To fix this, reboot the machine.  </p>
+<h3 id="fan-control">Fan Control</h3>
+<p>smcFanControl is an installed utility that will allow you to control the fan if the build server is getting too hot.</p>
+<h3 id="general-maintenance">General Maintenance</h3>
+<p>Onyx is an installed utility that will help to clear the system caches so that the system will run better.  Once in Onyx, run the default steps in "Automation."</p>
+<h2 id="documentation">Documentation</h2>
+<p>TODO</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../about/" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../about/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+site_name: AppTree Documentation
+pages:
+- Home: index.md
+- About: about.md
+- Build Server: build_server.md
+theme: readthedocs
