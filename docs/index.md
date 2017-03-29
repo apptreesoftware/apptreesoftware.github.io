@@ -1,6 +1,5 @@
 # Welcome to AppTree Documentation
 
-TODO
 
 # mkdocs
 

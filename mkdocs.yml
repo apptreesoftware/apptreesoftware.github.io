@@ -3,4 +3,5 @@ pages:
 - Home: index.md
 - About: about.md
 - Build Server: build_server.md
+- APIs : apis.md
 theme: readthedocs
